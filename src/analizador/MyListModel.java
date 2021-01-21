@@ -28,4 +28,6 @@ public class MyListModel extends DefaultListModel{
     
     public void insertElement(String _element) { data.add(_element); }
     public String getElement(int _index) { return data.get(_index); }
+    
+    public void functionPrueba(){}
 }
