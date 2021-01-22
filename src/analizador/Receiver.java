@@ -6,10 +6,6 @@
 
 package analizador;
 
-import java.io.*;
-import java.lang.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Vector;
@@ -80,16 +76,42 @@ public class Receiver implements PacketReceiver {
                 // Packet ARP (is packet in ethernet protocol)
                 // Meter la dirrecion en n array int para poder motrarlo en hexadecimal la direcion MAC
                 ARPPacket packet = (ARPPacket)_packet;
-                String source = Arrays.toString(packet.sender_hardaddr);
-                int i = packet.sender_hardaddr[1];  
-                String destination = Arrays.toString(packet.target_hardaddr);
+                
+                String sourceMac = "";
+                String destinationMac = "";
+                String elementSource = "";
+                String elementDestination = "";
+                for(int i=0; i<packet.sender_hardaddr.length; ++i){
+                    elementSource = Integer.toHexString(packet.sender_hardaddr[i]);
+                    elementDestination = Integer.toHexString(packet.target_hardaddr[i]);
+                    try{
+                       sourceMac = sourceMac + elementSource.substring(elementSource.length()-2) + ":";
+                    }catch(java.lang.StringIndexOutOfBoundsException exc){
+                        sourceMac = sourceMac + "0" + elementSource + ":";
+                    }
+                    try{
+                       destinationMac = destinationMac + elementDestination.substring(elementDestination.length()-2) + ":";
+                    }catch(java.lang.StringIndexOutOfBoundsException exc){
+                        destinationMac = destinationMac + "0" + elementDestination + ":";
+                    }
+                }
+                sourceMac = sourceMac.substring(0, sourceMac.length()-1);
+                destinationMac = destinationMac.substring(0, destinationMac.length()-1);
                 String length = String.valueOf(packet.data.length);
-                String data = "Who is " + Arrays.toString(packet.target_hardaddr);
+                
+                String data = "";
+                if(packet.operation == 1){
+                    data = "Who is " + destinationMac + " Tell " + "192.168." + packet.sender_protoaddr[2]
+                            + "." + packet.sender_protoaddr[3];
+                } else {
+                    data = "192.168." + packet.sender_protoaddr[2]+ "." + packet.sender_protoaddr[3] +
+                            " is at " + sourceMac;
+                }
                 
                 time.setTime(System.currentTimeMillis());
                 rowTable.add(time.toString());
-                rowTable.add(source);
-                rowTable.add(destination);
+                rowTable.add(sourceMac);
+                rowTable.add(destinationMac);
                 rowTable.add("ARP");
                 rowTable.add(length);
                 rowTable.add(data);
