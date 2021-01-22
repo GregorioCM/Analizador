@@ -5,20 +5,49 @@
  */
 
 package analizador;
-import jpcap.*;
 
+import java.net.SocketException;
+import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import jpcap.*;
 
 /**
  *
  * @author Gregorio
  */
 public class NetworkInterfaceSelect {
-    private NetworkInterface network;
+    private jpcap.NetworkInterface network;
     
     public NetworkInterfaceSelect(){ network = null; }
     
-    public NetworkInterfaceSelect(NetworkInterface _network) { network = _network; }
+    public NetworkInterfaceSelect(java.net.NetworkInterface _network){ 
+        
+        jpcap.NetworkInterface[] networkList = JpcapCaptor.getDeviceList();
+        for(int i=0; i<networkList.length; ++i){
+            try {
+                if(Arrays.equals(_network.getHardwareAddress(), networkList[i].mac_address)){
+                    network = networkList[i];
+                }
+            } catch (SocketException ex) {
+                System.out.println("Error en la comparacion de direcciones MAC");
+                Logger.getLogger(NetworkInterfaceSelect.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
     
-    public void setElement(NetworkInterface _network) { network = _network; }
-    public NetworkInterface getElement() { return network; }
+    public void setElement(java.net.NetworkInterface _network){ 
+        jpcap.NetworkInterface[] networkList = JpcapCaptor.getDeviceList();
+        for(int i=0; i<networkList.length; ++i){
+            try {
+                if(Arrays.equals(_network.getHardwareAddress(), networkList[i].mac_address)){
+                    network = networkList[i];
+                }
+            } catch (SocketException ex) {
+                System.out.println("Error en la comparacion de direcciones MAC");
+                Logger.getLogger(NetworkInterfaceSelect.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    public jpcap.NetworkInterface getElement() { return network; }
 }

@@ -148,10 +148,15 @@ public class Interface extends javax.swing.JFrame {
         if (sniffingIsStart == false) 
         {
             if(networkInterface.getElement() == null){
-                ListToSelectNetwork listNetworkToSelect = new ListToSelectNetwork(this, rootPaneCheckingEnabled);
-                listNetworkToSelect.setVisible(true);
-                networkInterface = listNetworkToSelect.getNetworkSelected();
-                listNetworkToSelect.dispose();
+                ListToSelectNetwork listNetworkToSelect;
+                try {
+                    listNetworkToSelect = new ListToSelectNetwork(this, rootPaneCheckingEnabled);
+                    listNetworkToSelect.setVisible(true);
+                    networkInterface = listNetworkToSelect.getNetworkSelected();
+                    listNetworkToSelect.dispose();
+                } catch (IOException ex) {
+                    Logger.getLogger(Interface.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
             if(networkInterface.getElement() != null){
                 jMenuItemStartSniffing.setText("Stop Sniffing");
@@ -173,10 +178,15 @@ public class Interface extends javax.swing.JFrame {
 
     private void jMenuItemChangeNetworkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemChangeNetworkActionPerformed
         // TODO add your handling code here:
-        ListToSelectNetwork listNetworkToSelect = new ListToSelectNetwork(this, rootPaneCheckingEnabled);
-        listNetworkToSelect.setVisible(true);
-        networkInterface = listNetworkToSelect.getNetworkSelected();
-        listNetworkToSelect.dispose();
+        ListToSelectNetwork listNetworkToSelect;
+        try {
+            listNetworkToSelect = new ListToSelectNetwork(this, rootPaneCheckingEnabled);
+            listNetworkToSelect.setVisible(true);
+            networkInterface = listNetworkToSelect.getNetworkSelected();
+            listNetworkToSelect.dispose();
+        } catch (IOException ex) {
+            Logger.getLogger(Interface.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_jMenuItemChangeNetworkActionPerformed
 
     private void jMenuItemPruebaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemPruebaActionPerformed

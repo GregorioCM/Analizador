@@ -7,52 +7,48 @@
 package analizador;
 
 
+//import java.awt.List;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
-import jpcap.JpcapCaptor;
-import jpcap.NetworkInterface;
 
 /**
  *
  * @author Gregorio
  */
 public class ListToSelectNetwork extends javax.swing.JDialog {
-    private NetworkInterface [] networkList;
+    private Vector<NetworkInterface> networkListFilter;
+    private Enumeration<NetworkInterface> networkList;
     private NetworkInterfaceSelect networkSelected;
     private DefaultListModel listNetwork;
     
     /**
      * Creates new form ListToSelectNetwork
      */
-    public ListToSelectNetwork(java.awt.Frame parent, boolean modal) {
+    public ListToSelectNetwork(java.awt.Frame parent, boolean modal) throws IOException {
         super(parent, modal);
         initComponents();
         
         networkSelected = new NetworkInterfaceSelect();
-        networkList = JpcapCaptor.getDeviceList();
+        networkListFilter = new Vector<NetworkInterface>(1);
+        networkList = NetworkInterface.getNetworkInterfaces();
         listNetwork = new DefaultListModel();
-        for(int i=0; i<networkList.length; ++i)
-        {
-            /*Mirar si puedes acceder al nombre del servicio para que no muestre el registro 
-            * puede ser una solución mirar cual esta conectado para, y una vez seleccionado comparar, para que no existan muchos
-            * servicios
-            */
-            listNetwork.addElement("Name: " + networkList[i].name + " Description: " + networkList[i].description);
-//            if (networkList[i].addresses[1].address != null || networkList[i].addresses[0] != null){
-//                listNetwork.addElement("Name: " + networkList[i].name + " Description: " + networkList[i].description + 
-//                " Is connected, address IPv4:  " + networkList[i].addresses[1].address);
-//                
-//                System.out.println(networkList[i].addresses[1].address.getCanonicalHostName());
-//                System.out.println(networkList[i].addresses[1].broadcast);
-//                System.out.println(networkList[i].addresses[1].destination);
-//                System.out.println(networkList[i].addresses[1].subnet);
-//            } else {
-//                listNetwork.addElement("Name: " + networkList[i].name + " Description: " + networkList[i].description + " Data link: "
-//                + networkList[i].addresses[0]);
-//                System.out.println(networkList[i].addresses[0].address);
-//            }
-        }
+        
+        NetworkInterface networkNow = null;
+        do{
+            networkNow = networkList.nextElement();
+            Enumeration<InetAddress> listAdress = networkNow.getInetAddresses();
+            if(listAdress.hasMoreElements() != false){
+                networkListFilter.add(networkNow);
+                listNetwork.addElement("Name: " + networkNow.getDisplayName() + " Description: " + networkNow.getName());
+            }
+        }while(networkList.hasMoreElements() == true);
         jList2.setModel(listNetwork);
         jList2.updateUI();
     }
@@ -120,7 +116,7 @@ public class ListToSelectNetwork extends javax.swing.JDialog {
         // TODO add your handling code here:
         if (jList2.getSelectedIndex() != -1)
         {
-            networkSelected.setElement(networkList[jList2.getSelectedIndex()]);
+            networkSelected.setElement(networkListFilter.get(jList2.getSelectedIndex()));
             this.setVisible(false);
         } else {
             ErrorMessage error = new ErrorMessage(null, true);
@@ -167,14 +163,20 @@ public class ListToSelectNetwork extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ListToSelectNetwork dialog = new ListToSelectNetwork(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
+                ListToSelectNetwork dialog;
+                try {
+                    dialog = new ListToSelectNetwork(new javax.swing.JFrame(), true);
+                    dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                        @Override
+                        public void windowClosing(java.awt.event.WindowEvent e) {
+                            System.exit(0);
+                        }
+                    });
+                    dialog.setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(ListToSelectNetwork.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
             }
         });
     }
